@@ -1,0 +1,221 @@
+{
+	"info": {
+		"_postman_id": "c2cbfbb2-6daf-46a5-ba01-2fc5418f2c1f",
+		"name": "DSCI551",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "mkdir",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.231.187:5000/api/v1/mkdir?directory_path=%2F&directory_name=test2&db=mongo",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"231",
+						"187"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"mkdir"
+					],
+					"query": [
+						{
+							"key": "directory_path",
+							"value": "%2F"
+						},
+						{
+							"key": "directory_name",
+							"value": "test2"
+						},
+						{
+							"key": "db",
+							"value": "mongo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ls",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.231.187:5000/api/v1/ls?directory_path=%2F&db=mongo",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"231",
+						"187"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"ls"
+					],
+					"query": [
+						{
+							"key": "directory_path",
+							"value": "%2F"
+						},
+						{
+							"key": "db",
+							"value": "mongo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cat",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.231.187:5000/api/v1/cat?file_path=%2Ftest%2Fsmall_test.csv&db=mongo",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"231",
+						"187"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"cat"
+					],
+					"query": [
+						{
+							"key": "file_path",
+							"value": "%2Ftest%2Fsmall_test.csv"
+						},
+						{
+							"key": "db",
+							"value": "mongo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "rm",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.231.187:5000/api/v1/rm?file_path=%2Ftest2&db=mongo",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"231",
+						"187"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"rm"
+					],
+					"query": [
+						{
+							"key": "file_path",
+							"value": "%2Ftest2"
+						},
+						{
+							"key": "db",
+							"value": "mongo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPartitionLocations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.231.187:5000/api/v1/getPartitionLocations?file_path=%2Ftest%2Fdata.csv&db=mongo",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"231",
+						"187"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"getPartitionLocations"
+					],
+					"query": [
+						{
+							"key": "file_path",
+							"value": "%2Ftest%2Fdata.csv"
+						},
+						{
+							"key": "db",
+							"value": "mongo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "readPartition",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.231.187:5000/api/v1/readPartition?file_path=%2Ftest%2Fsmall_test.csv&db=mongo&partition_num=0",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"231",
+						"187"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"readPartition"
+					],
+					"query": [
+						{
+							"key": "file_path",
+							"value": "%2Ftest%2Fsmall_test.csv"
+						},
+						{
+							"key": "db",
+							"value": "mongo"
+						},
+						{
+							"key": "partition_num",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
