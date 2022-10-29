@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
 from urllib.parse import unquote_plus
-from MongoFS import MongoFS
 
+from MongoFS import MongoFS
+import ordertools as SqlFS
+import firebase_commands as FbFS
 
 # configs
 mongo_conn_str = "mongodb+srv://x39j1017d:aLJCQ5mMc1kulqQf@cluster0.exky2zv.mongodb.net/?retryWrites=true&w=majority"
@@ -30,14 +32,22 @@ def mkdir():
 	directory_name = args.get('directory_name')
 	db = args.get('db')
 
+	fullPath = directory_path
+	if directory_path != '/':
+		fullPath += "/"
+	fullPath += directory_name
+
+	res = False
 	if db == 'mongo':
 		res = mongoClient.mkdir(directory_path, directory_name)
-		if res:
-			return jsonify({"res": "success"})
-		else:
-			return jsonify({"res": "failed"})
+	elif db == 'mysql':
+		res = SqlFS.mkdir(fullPath)
+	elif db == 'firebase':
+		res = FbFS.mkdir(fullPath)
 
-	return "hello"
+	if res:
+		return jsonify({"res": "success"})
+	return jsonify({"res": "failed"})
 
 
 # @param: directory_path - the full directory for the ls command
@@ -54,12 +64,15 @@ def ls():
 		return jsonify({
 			'children': res
 		})
+	elif db == 'mysql':
+		return "NOT IMPLEMENTED"
+	elif db == 'firebase':
+		res = FbFS.ls(directory_path)
+		return jsonify({
+			'children': res
+		})
 
-	# ping pong
-	return jsonify({
-		'directory_path': directory_path,
-		'db': db
-	})
+	return jsonify({"res": []})
 
 
 # FIXME: will exceed response size limit if file is too large. Maybe we shouldn't provide such kind of interface anyway?
@@ -75,8 +88,13 @@ def cat():
 	if db == 'mongo':
 		res = mongoClient.cat(file_path)
 		return jsonify({'content': res})
+	elif db == 'mysql':
+		return "NOT IMPLEMENTED"
+	elif db == 'firebase':
+		res = FbFS.cat(file_path)
+		return jsonify({'content': res})
 
-	return "hello"
+	return jsonify({"res": "failed"}), 400
 
 
 # @param: file_path - the full directory for the file to be removed
@@ -88,14 +106,17 @@ def rm():
 	file_path = unquote_plus(args.get('file_path'))
 	db = args.get('db')
 
+	res = False
 	if db == 'mongo':
 		res = mongoClient.rm(file_path)
-		if res:
-			return jsonify({"res": "success"})
-		else:
-			return jsonify({"res": "failed"})
+	elif db == 'mysql':
+		res = SqlFS.rm(file_path)
+	elif db == 'firebase':
+		res = FbFS.rm(file_path)
 
-	return "hello"
+	if res:
+		return jsonify({"res": "success"})
+	return jsonify({"res": "failed"}), 400
 
 
 # TODO: put is much more complicated. figure out how to implement
@@ -114,7 +135,15 @@ def getPartitionLocations():
 	file_path = unquote_plus(args.get('file_path'))
 	db = args.get('db')
 
-	return "hello"
+	res = []
+	if db == 'mongo':
+		res = mongoClient.getPartitionLocations(file_path)
+	elif db == 'mysql':
+		res = SqlFS.getPartitionLocations(file_path)
+	elif db == 'firebase':
+		res = FbFS.getPartitionLocations(file_path)
+
+	return jsonify({"partitionLocations": res})
 
 
 # @param: file_path - the full directory for the file to be read
@@ -125,17 +154,23 @@ def getPartitionLocations():
 def readPartition():
 	args = request.args
 	file_path = unquote_plus(args.get('file_path'))
-	partition_num = args.get('partition_num') # note that here it is str
+	partition_num = int(args.get('partition_num'))
 	db = args.get('db')
 
 	if db == 'mongo':
-		res, ok = mongoClient.readPartition(file_path, int(partition_num))
+		res, ok = mongoClient.readPartition(file_path, partition_num)
 		if not ok:
 			return jsonify({"res": "failed"})
 		else:
 			return jsonify({'content': res})
+	elif db == 'mysql':
+		res = SqlFS.readPartition(file_path, partition_num)
+		return jsonify({'content': res})
+	elif db == 'firebase':
+		res = FbFS.readPartition(file_path, partition_num)
+		return jsonify({'content': res})
 
-	return "hello"
+	return jsonify({"res": "failed"}), 400
 
 
 # driver function
