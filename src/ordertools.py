@@ -5,7 +5,8 @@ import collections
 
 pymysql.install_as_MySQLdb()
 
-my_conn = sqlalchemy.create_engine("mysql+mysqldb://root:123456@localhost/dsci551project")
+address = "mysql+mysqldb://admin:dsci-551@database-2.cxay4obryyr9.us-west-1.rds.amazonaws.com:3306/dsci551project"
+my_conn = sqlalchemy.create_engine(address)
 
 
 def __findpath(order):
@@ -14,7 +15,9 @@ def __findpath(order):
         orderlist = [""]
     else:
         orderlist = order.split('/')  # ["","john","a"]
-    c_id = "" # c_id is current file id
+
+    c_id = ""  # c_id is current file id
+
     i = 0
     for i in range(len(orderlist)):
         filename = orderlist[i]
@@ -32,7 +35,9 @@ def __findpath(order):
 
 
 def __create_file_path(orderlist, start_id):
-    mtime = 0 # mtime is stable now, it should be changed in the future version
+
+    mtime = 0  # mtime is stable now, it should be changed in the future version
+
     p_id = start_id
     for name in orderlist:
         # create from empty table
@@ -86,11 +91,14 @@ def __create_file(c_id, dataframe, p):
 def mkdir(order):
     # order is the file path of the whole command
     # Example: mkdir /john/a --> order: "/john/a"
-    tsign, c_id, iteration = __findpath(order) # c_id is current file id
+
+    tsign, c_id, iteration = __findpath(order)  # c_id is current file id
     if not tsign:
         __create_file_path(iteration, c_id)
-        return
+        return True
     print("the path error or have exist!")
+    return False
+
 
 
 def rm(order):
@@ -99,23 +107,31 @@ def rm(order):
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
         print("the path invalid")
-        return
+
+        return False
     __delete_file_path(c_id)
-    return
+    return True
+
 
 
 def put(filename, order, k):
     # e.g., put(cars.csv, /user/john, k = # partitions)
-    mtime = 0
-    tsign, p_id, iteration = __findpath(order)
-    my_conn.execute(
-        f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{filename}', '1', '{mtime}')")
-    result = pd.read_sql("SELECT LAST_INSERT_ID()", my_conn)
-    c_id = result["LAST_INSERT_ID()"][0]
-    my_conn.execute(
-        f"INSERT INTO `directory` (`parent_id`, `children_id`) VALUES ('{p_id}', '{c_id}')")
-    dataframe = pd.read_csv(filename)
-    __create_file(c_id, dataframe, k)
+
+    try:
+        mtime = 0
+        tsign, p_id, iteration = __findpath(order)
+        my_conn.execute(
+            f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{filename}', '1', '{mtime}')")
+        result = pd.read_sql("SELECT LAST_INSERT_ID()", my_conn)
+        c_id = result["LAST_INSERT_ID()"][0]
+        my_conn.execute(
+            f"INSERT INTO `directory` (`parent_id`, `children_id`) VALUES ('{p_id}', '{c_id}')")
+        dataframe = pd.read_csv(filename)
+        __create_file(c_id, dataframe, k)
+        return True
+    except:
+        return False
+
 
 
 def getPartitionLocations(order):
@@ -127,7 +143,8 @@ def getPartitionLocations(order):
         f"SELECT partition_name FROM `information_schema`.`PARTITIONS` AS p WHERE p.table_name = 'fileid_{c_id}'",
         my_conn)
     print(res)
-    return
+    return res.values.tolist()
+
 
 
 def readPartition(order, partition):
@@ -138,4 +155,6 @@ def readPartition(order, partition):
     sql = f"SELECT * from fileid_{c_id} PARTITION(p{partition})"
     res = pd.read_sql(sql, my_conn)
     print(res)
-    return
+
+    return res.values.tolist()
+
