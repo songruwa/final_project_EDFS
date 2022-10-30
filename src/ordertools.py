@@ -4,8 +4,10 @@ import pandas as pd
 import collections
 
 pymysql.install_as_MySQLdb()
+
 address = "mysql+mysqldb://admin:dsci-551@database-2.cxay4obryyr9.us-west-1.rds.amazonaws.com:3306/dsci551project"
 my_conn = sqlalchemy.create_engine(address)
+
 
 def __findpath(order):
     # order Example: /john/a
@@ -13,7 +15,9 @@ def __findpath(order):
         orderlist = [""]
     else:
         orderlist = order.split('/')  # ["","john","a"]
+
     c_id = ""  # c_id is current file id
+
     i = 0
     for i in range(len(orderlist)):
         filename = orderlist[i]
@@ -31,7 +35,9 @@ def __findpath(order):
 
 
 def __create_file_path(orderlist, start_id):
+
     mtime = 0  # mtime is stable now, it should be changed in the future version
+
     p_id = start_id
     for name in orderlist:
         # create from empty table
@@ -85,6 +91,7 @@ def __create_file(c_id, dataframe, p):
 def mkdir(order):
     # order is the file path of the whole command
     # Example: mkdir /john/a --> order: "/john/a"
+
     tsign, c_id, iteration = __findpath(order)  # c_id is current file id
     if not tsign:
         __create_file_path(iteration, c_id)
@@ -93,19 +100,23 @@ def mkdir(order):
     return False
 
 
+
 def rm(order):
     # order is the file path of the whole command
     # Example: rm /john/a --> order: "/john/a"
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
         print("the path invalid")
+
         return False
     __delete_file_path(c_id)
     return True
 
 
+
 def put(filename, order, k):
     # e.g., put(cars.csv, /user/john, k = # partitions)
+
     try:
         mtime = 0
         tsign, p_id, iteration = __findpath(order)
@@ -122,6 +133,7 @@ def put(filename, order, k):
         return False
 
 
+
 def getPartitionLocations(order):
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
@@ -134,6 +146,7 @@ def getPartitionLocations(order):
     return res.values.tolist()
 
 
+
 def readPartition(order, partition):
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
@@ -142,4 +155,6 @@ def readPartition(order, partition):
     sql = f"SELECT * from fileid_{c_id} PARTITION(p{partition})"
     res = pd.read_sql(sql, my_conn)
     print(res)
+
     return res.values.tolist()
+
