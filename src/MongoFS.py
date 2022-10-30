@@ -195,12 +195,13 @@ class MongoFS(EDFSInterface):
             # file does not exist or is a folder
             return []
 
-        return [*range(file_coll[0]["partitionCount"])]
+        return [*range(1, file_coll[0]["partitionCount"] + 1)]
 
 
-    # return the content of {partition_num}-th partition of the file {file_path}, 0-indexed
+    # return the content of {partition_num}-th partition of the file {file_path}, 1-indexed
     # Return list of rows(row == list of string)
     def readPartition(self, file_path, partition_num):
+        partition_num -= 1 # internally we still use 0-indexing, do the conversion here
         res, _ = self.readPartitionWithError(file_path, partition_num)
         return res
     

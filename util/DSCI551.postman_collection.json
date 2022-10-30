@@ -11,13 +11,13 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.231.187:5000/api/v1/mkdir?directory_path=%2F&directory_name=test2&db=mongo",
+					"raw": "http://192.168.230.79:5000/api/v1/mkdir?directory_path=%2Ftest2%2Ftest3&db=mongo",
 					"protocol": "http",
 					"host": [
 						"192",
 						"168",
-						"231",
-						"187"
+						"230",
+						"79"
 					],
 					"port": "5000",
 					"path": [
@@ -28,11 +28,7 @@
 					"query": [
 						{
 							"key": "directory_path",
-							"value": "%2F"
-						},
-						{
-							"key": "directory_name",
-							"value": "test2"
+							"value": "%2Ftest2%2Ftest3"
 						},
 						{
 							"key": "db",
@@ -49,13 +45,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.231.187:5000/api/v1/ls?directory_path=%2F&db=mongo",
+					"raw": "http://192.168.230.79:5000/api/v1/ls?directory_path=%2F&db=mongo",
 					"protocol": "http",
 					"host": [
 						"192",
 						"168",
-						"231",
-						"187"
+						"230",
+						"79"
 					],
 					"port": "5000",
 					"path": [
@@ -83,13 +79,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.231.187:5000/api/v1/cat?file_path=%2Ftest%2Fsmall_test.csv&db=mongo",
+					"raw": "http://192.168.230.79:5000/api/v1/cat?file_path=%2Fuser%2Fjohn%2Ftestcsv.csv&db=firebase",
 					"protocol": "http",
 					"host": [
 						"192",
 						"168",
-						"231",
-						"187"
+						"230",
+						"79"
 					],
 					"port": "5000",
 					"path": [
@@ -100,11 +96,11 @@
 					"query": [
 						{
 							"key": "file_path",
-							"value": "%2Ftest%2Fsmall_test.csv"
+							"value": "%2Fuser%2Fjohn%2Ftestcsv.csv"
 						},
 						{
 							"key": "db",
-							"value": "mongo"
+							"value": "firebase"
 						}
 					]
 				}
@@ -117,13 +113,13 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.231.187:5000/api/v1/rm?file_path=%2Ftest2&db=mongo",
+					"raw": "http://192.168.230.79:5000:5000/api/v1/rm?file_path=%2Ftest2&db=mongo",
 					"protocol": "http",
 					"host": [
 						"192",
 						"168",
-						"231",
-						"187"
+						"230",
+						"79:5000"
 					],
 					"port": "5000",
 					"path": [
@@ -151,13 +147,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.231.187:5000/api/v1/getPartitionLocations?file_path=%2Ftest%2Fdata.csv&db=mongo",
+					"raw": "http://192.168.230.79:5000/api/v1/getPartitionLocations?file_path=%2Ftest%2Fjohn%2Fsmall_test.csv&db=mongo",
 					"protocol": "http",
 					"host": [
 						"192",
 						"168",
-						"231",
-						"187"
+						"230",
+						"79"
 					],
 					"port": "5000",
 					"path": [
@@ -168,7 +164,7 @@
 					"query": [
 						{
 							"key": "file_path",
-							"value": "%2Ftest%2Fdata.csv"
+							"value": "%2Ftest%2Fjohn%2Fsmall_test.csv"
 						},
 						{
 							"key": "db",
@@ -185,13 +181,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.231.187:5000/api/v1/readPartition?file_path=%2Ftest%2Fsmall_test.csv&db=mongo&partition_num=0",
+					"raw": "http://192.168.230.79:5000/api/v1/readPartition?file_path=%2Fuser%2Fjohn%2Ftestcsv.csv&db=firebase&partition_num=1",
 					"protocol": "http",
 					"host": [
 						"192",
 						"168",
-						"231",
-						"187"
+						"230",
+						"79"
 					],
 					"port": "5000",
 					"path": [
@@ -202,15 +198,15 @@
 					"query": [
 						{
 							"key": "file_path",
-							"value": "%2Ftest%2Fsmall_test.csv"
+							"value": "%2Fuser%2Fjohn%2Ftestcsv.csv"
 						},
 						{
 							"key": "db",
-							"value": "mongo"
+							"value": "firebase"
 						},
 						{
 							"key": "partition_num",
-							"value": "0"
+							"value": "1"
 						}
 					]
 				}

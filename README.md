@@ -65,11 +65,10 @@ Backend service based on `Flask`.
 
 - Params:
 
-  - directory_path - the parent directory where the new folder will be created, should be already encoded using encodeURIComponent()
-
-  - directory_name - name for the new folder to be created
-
-  - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
+  - directory_path - the path of the new folder to be created, should be already encoded using encodeURIComponent()
+- db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
+- Return:
+  - res - "success" or "failed"
 
 
 
@@ -79,6 +78,20 @@ Backend service based on `Flask`.
   - directory_path - the full directory for the ls command
   - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
 
+- Return:
+  - children - list of string, each element representing a child file/folder
+
+
+
+#### GET /api/v1/cat
+
+- Params
+  - file_path - the full directory for the file to be read
+  - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
+
+- Return:
+  - content - list of string, each element is one line of data from the file
+
 
 
 #### PUT `/api/v1/rm`
@@ -86,6 +99,8 @@ Backend service based on `Flask`.
 - Params
   - file_path - the full directory for the file to be removed
   - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
+- Return:
+  - res - "success" or "failed"
 
 
 
@@ -101,16 +116,20 @@ Backend service based on `Flask`.
   - file_path - the full directory for the file
   - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
 
+- Return:
+  - partitionLocations - list, different db returns different content
+
 
 
 #### GET `/api/v1/readPartition`
 
 - Params
   - file_path - the full directory for the file to be read
-  - partition_num - the patition number, 0-indexed
+  - partition_num - the patition number, 1-indexed
   - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
 
-
+- Return:
+  - content - list of string, each element is one line of data from the file
 
 ### Test plan
 
