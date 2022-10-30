@@ -36,7 +36,12 @@ def mkdir(dir):
     content={dir[index+1:]:"dir"}
     data=json.dumps(content)
     res = requests.patch(url, data)
-    print(res)
+    #print(type(res.status_code))
+    if res.status_code == 200:
+        return True
+    else:
+        return False
+
 
 
 def ls(dir):
@@ -58,9 +63,15 @@ def cat(file):
     blob = bucket.blob(file[1:])
     path = "https://firebasestorage.googleapis.com/v0" + blob.path + "?alt=media"
     f = urllib.request.urlopen(path).read()
-    print(f)  # b'this is a test file'
-    print(type(f))  # <class 'bytes'>
-    return f
+    # print(f)
+    res=str(f,encoding='utf-8').replace('\r','')
+    res=res.strip()
+    res=res.split('\n')
+    print(res) # ['This is a test file', 'edfs is a file system', 'test txt working', 'usc ucla', 'this is a testing file']
+    print(type(res)) # <class 'list'>
+    # print(f)  # b'this is a test file'
+    # print(type(f))  # <class 'bytes'>
+    return res
 
 
 def rm(file):
@@ -71,7 +82,11 @@ def rm(file):
     # storage.delete("user/john/cars.csv")
     url=base_url+file.split(".")[0]+".json"
     res=requests.delete(url)
-    print(res)
+    # print(res)
+    if res.status_code == 200:
+        return True
+    else:
+        return False
 
 
 def put(filename,location,k):
@@ -85,7 +100,7 @@ def put(filename,location,k):
     blob = bucket.blob(path[1:])
     blob.upload_from_filename(filename)
     sourceFileData = open(filename, 'r', encoding='utf-8')
-    ListOfLine = sourceFileData.read().splitlines()  # 将读取的文件内容按行分割，然后存到一个列表中
+    ListOfLine = sourceFileData.read().splitlines()  # split content in lines and save into a list
     n = len(ListOfLine)
     p = n // k + 1
     for i in range(k):
@@ -111,12 +126,16 @@ def put(filename,location,k):
     res = requests.patch(url, data)
     # delete the original file or not depending on whether we want to save it on our server permanently
     # os.remove(filename)
-    print(res)
+    # print(res.status_code)
+    if res.status_code == 200:
+        return True
+    else:
+        return False
 
 
 def getPartitionLocations(file):
     # this method will return the locations of partitions of the file.
-    # file: String eg. /user/john/testfile1.txt
+    # file: String eg. /user/john/test.txt
     # return eg: ["gs://edfs-7268e.appspot.com/user/john/testfile1_1.txt"]
     tmp=file.split(".")
     url=base_url+tmp[0]+"/partitions.json"
@@ -136,26 +155,31 @@ def readPartition(file, partition):
     # The portioned data will be needed in the second task for parallel processing
     # file: String
     # partition : int
-    # eg. readPartition("/user/john/testfile1.txt", 2)
+    # eg. readPartition("/user/john/test.txt", 2)
     tmp=file.split(".")
     filename=tmp[0]+"_"+str(partition)+"."+tmp[1]
     bucket = storage.bucket()
     blob = bucket.blob(filename[1:])
     path = "https://firebasestorage.googleapis.com/v0" + blob.path + "?alt=media"
     f = urllib.request.urlopen(path).read()
-    print(f)  # b'test txt working\nusc ucla\n'
-    print(type(f))  # <class 'bytes'>
-    return f
+    res = str(f, encoding='utf-8').replace('\r', '')
+    res = res.strip()
+    res = res.split('\n')
+    print(res)
+    print(type(res))
+    return res
 
 
 if __name__ == '__main__':
-    #mkdir("/user/jason")
+    # res=mkdir("/user/Lucy")
+    # print(res)
     #result=ls("/user")
-    #put("testfile1.txt","/user/john",3)
-    #rm("/user/john/cars.csv")
-    #cat("/user/john/testfile.txt")
-    #readPartition("/user/john/testfile1.txt", 2)
-    getPartitionLocations("/user/john/testfile1.txt")
+    # rm("/user/john/testcsv.csv")
+    # res=put("testcsv.csv","/user/john",3)
+    # print(res)
+    cat("/user/john/testcsv.csv")
+    # readPartition("/user/john/testcsv.csv", 2)
+    #getPartitionLocations("/user/john/test.txt")
 
 
 
