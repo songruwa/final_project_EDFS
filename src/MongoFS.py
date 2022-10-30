@@ -1,6 +1,6 @@
 import pymongo
 import json
-import csv
+
 import math
 from EDFS import EDFSInterface
 
@@ -51,27 +51,34 @@ class MongoFS(EDFSInterface):
 
     ####################### EDFS interface method implementations ###############################
 
-    # create a new folder named as {directory_name} under {directory_path}
+    # create a new folder {directory_path}, create parent folders along the way if not existing
     # Return True if succesfull, False if failed
-    def mkdir(self, directory_path, directory_name):
+    def mkdir(self, directory_path):
         directory_path = "" if directory_path == "/" else directory_path
+        folders = directory_path.split("/")[1:]
 
-        # check if path is valid
-        parent_coll = self.client.namenode.directory.find({"fullPath": directory_path})
-        if len(list(parent_coll.clone())) != 1 or not parent_coll[0]["isDirectory"]:
-            # parent directory does not exist or is not a directory
-            return False
+        directory_list = []
+        prefix_path = ""
+        for folder in folders:
+            prefix_path += "/" + folder
+            directory_list.append(prefix_path)
         
-        itself_coll = self.client.namenode.directory.find({"fullPath": directory_path + "/" + directory_name})
-        if len(list(itself_coll.clone())) != 0:
-            # a node with same name already exist
-            return False
+        folder_coll = self.client.namenode.directory.find({"fullPath": {"$in": directory_list}})
+        for folder in folder_coll:
+            if not folder["isDirectory"]:
+                # a file with the same path as one of the parent folder exist, cannot create folder
+                return False
 
         # create the folder in namenode
-        res = self.client.namenode.directory.insert_one({
-            "fullPath": directory_path + "/" + directory_name,
-            "isDirectory": True
+        documents = [{"fullPath": path, "isDirectory": True} for path in directory_list]
+        # first delete existing folders to prevent duplication
+        res = self.client.namenode.directory.delete_many({
+            "fullPath": {"$in": directory_list},
+            "isDirectory": {"$eq": True}
         })
+        if not res.acknowledged:
+            return False
+        res = self.client.namenode.directory.insert_many(documents)
         return res.acknowledged
     
     # listing all files within directory {directory_path}
@@ -98,18 +105,14 @@ class MongoFS(EDFSInterface):
         data = []
         partition_count = file_coll[0]["partitionCount"]
         for i in range(partition_count):
-            partition_data, ok = self.readPartition(file_path, i)
+            partition_data, ok = self.readPartitionWithError(file_path, i)
             if not ok:
                 return []
-            # note that each partition's first line is the same header
-            # only include the first line (header) for the first partition
-            if i == 0:
-                data += partition_data
-            else:
-                data += partition_data[1:]
+            data += partition_data
 
         return data
-    
+
+
     # remove file {file_path}
     # Return True if succesfull, False if failed
     def rm(self, file_path):
@@ -136,14 +139,15 @@ class MongoFS(EDFSInterface):
         return data_res.acknowledged
 
 
-    # upload a file from local file system's path {file_src}, to remote EDFS's path {file_path}, with {partition_count} partitions
+    # upload a file from local file system's path {file_src}, to remote EDFS's directory {file_path}, with {partition_count} partitions
     # Return True if succesfull, False if failed
-    # FIXME: currently this function supports csv files only
-    def put(self, file_src, file_path, partition_count):
-        parent_directory = file_path[ : file_path.rfind("/")]
+    def put(self, file_src, directory_path, partition_count):
+        file_name = file_src[file_src.rfind("/") + 1 :]
+        directory_path = "" if directory_path == "/" else directory_path
+        file_path = directory_path + "/" + file_name
 
         # check if path is valid
-        parent_coll = self.client.namenode.directory.find({"fullPath": parent_directory})
+        parent_coll = self.client.namenode.directory.find({"fullPath": directory_path})
         if len(list(parent_coll.clone())) != 1 or not parent_coll[0]["isDirectory"]:
             # parent directory does not exist or is not a directory
             return False
@@ -151,7 +155,6 @@ class MongoFS(EDFSInterface):
         itself_coll = self.client.namenode.directory.find({"fullPath": file_path})
         if len(list(itself_coll.clone())) != 0:
             # a node with same name already exist
-            # FIXME: overwrite that file or return error?
             return False
 
         # clear potential dirty data in datanode before writing data partitions
@@ -159,21 +162,16 @@ class MongoFS(EDFSInterface):
 
         # write data to datanode
         file = open(file_src, "r")
-        reader = csv.reader(file)
-        row_count = sum(1 for row in reader) - 1 # number of *DATA* rows, exclude header
+        row_count = sum(1 for row in file)
 
         file = open(file_src, "r")
-        reader = csv.reader(file)
         avg = math.ceil(row_count / partition_count)
-
-        header = next(reader)
 
         for partition_num in range(partition_count):
             # for each partition, try to read average number of rows unless there are no enough rows remaining
             should_read = min(avg, row_count)
             row_count -= should_read
-
-            res = self.putPartition(reader, should_read, file_path, partition_num, header)
+            res = self.putPartition(file, should_read, file_path, partition_num)
             if not res:
                 # failed to write data, return err without retrying
                 return False
@@ -189,18 +187,55 @@ class MongoFS(EDFSInterface):
 
 
     # return all locations of file {file_path}'s partitions
+    # retrun a list containing partition numbers
+    # cannot return a single size because a logical partition is further devided into collections to avoid BSON size limit
     def getPartitionLocations(self, file_path):
         file_coll = self.client.namenode.directory.find({"fullPath": file_path})
-        if len(list(file_coll.clone())) != 1:
-            # file does not exist
+        if len(list(file_coll.clone())) != 1 or file_coll[0]["isDirectory"]:
+            # file does not exist or is a folder
             return []
 
-        # FIXME: what should be returned? a "partition" can actually span multiple collections because BSON size limit is 16MB
-        return []
-    
+        return [*range(file_coll[0]["partitionCount"])]
+
+
     # return the content of {partition_num}-th partition of the file {file_path}, 0-indexed
-    # Return list of rows(row == list of string), *and* True/False indicating if successful
+    # Return list of rows(row == list of string)
     def readPartition(self, file_path, partition_num):
+        res, _ = self.readPartitionWithError(file_path, partition_num)
+        return res
+    
+    # optional? return the entire nested directory structure from root directory
+    # TODO: implement this if needed
+    def tree(self):
+        directory = self.client.namenode.directory.find({"name": ""})
+        return
+
+
+    ###################### Helper functions ####################################
+
+    def putPartition(self, file, should_read, file_path, partition_num):
+        data_list = [] # list of data blobs
+        for n in range(should_read):
+            if n % self.MAXIMUM_ROW == 0:
+                data_list.append([])
+            data_list[-1].append(file.readline().replace('\n', '').replace('\r', ''))
+        sub_partition_count = len(data_list)
+        for i in range(sub_partition_count):
+            data_blob = json.dumps(data_list[i]) # serialize data into JSON
+            res = self.client.datanode.data.insert_one({
+                "fullPath": file_path,
+                "partitionNum": partition_num,
+                "dataBlob": data_blob,
+                "subPartitionCount": sub_partition_count,
+                "subPartitionNum": i
+            })
+            if not res.acknowledged:
+                # failed to write data, return err without retrying
+                return False
+
+        return True
+
+    def readPartitionWithError(self, file_path, partition_num):
         file_coll = self.client.namenode.directory.find({"fullPath": file_path})
         if len(list(file_coll.clone())) != 1:
             # file does not exist
@@ -231,35 +266,3 @@ class MongoFS(EDFSInterface):
             data += json.loads(data_coll[0]["dataBlob"])
 
         return data, True
-    
-    # optional? return the entire nested directory structure from root directory
-    # TODO: implement this if needed
-    def tree(self):
-        directory = self.client.namenode.directory.find({"name": ""})
-        return
-
-
-    ###################### Helper functions ####################################
-
-    def putPartition(self, reader, should_read, file_path, partition_num, header):
-        data_list = [[header]] # list of data blobs
-        for n in range(1, should_read + 1):
-            if n % self.MAXIMUM_ROW == 0:
-                data_list.append([])
-            data_list[-1].append(next(reader))
-
-        sub_partition_count = len(data_list)
-        for i in range(sub_partition_count):
-            data_blob = json.dumps(data_list[i]) # serialize data into JSON
-            res = self.client.datanode.data.insert_one({
-                "fullPath": file_path,
-                "partitionNum": partition_num,
-                "dataBlob": data_blob,
-                "subPartitionCount": sub_partition_count,
-                "subPartitionNum": i
-            })
-            if not res.acknowledged:
-                # failed to write data, return err without retrying
-                return False
-
-        return True

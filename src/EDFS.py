@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
 class EDFSInterface(ABC):
-    # create a new directory named as {directory_name} under {directory_path}
+    # create a new folder {directory_path}, create parent folders along the way if not existing
     @abstractmethod
-    def mkdir(self, directory_path, directory_name):
+    def mkdir(self, directory_path):
         pass
     
     # listing content of directory {directory_path}
@@ -21,9 +21,9 @@ class EDFSInterface(ABC):
     def rm(self, file_path):
         pass
     
-    # upload a file from local file system's path {file_src}, to remote EDFS's path {file_path}, with {partition_count} partitions
+    # upload a file from local file system's path {file_src}, to remote EDFS's directory {file_path}, with {partition_count} partitions
     @abstractmethod
-    def put(self, file_src, file_path, partition_count):
+    def put(self, file_src, directory_path, partition_count):
         pass
     
     # return all locations of file {file_path}'s partitions
