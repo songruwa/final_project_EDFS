@@ -12,13 +12,13 @@ mongo_conn_str = "mongodb+srv://x39j1017d:aLJCQ5mMc1kulqQf@cluster0.exky2zv.mong
 pass_phrase = "dsci551"
 
 # creating a Flask app
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='')
 mongoClient = MongoFS(mongo_conn_str)
 
 # hello world
 @app.route('/', methods = ['GET'])
 def home():
-	return "hello world"
+	return app.send_static_file("web.html")
 
 
 # @param: directory_path - the parent directory where the new folder will be created, should be already encoded using encodeURIComponent()

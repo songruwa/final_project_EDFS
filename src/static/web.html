@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel= "stylesheet" type= "text/css" href= ../css/style.css>
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <title>dsci551</title>
+</head>
+<body>
+    <div class="search">
+        <script src="javaScript.js"></script>
+        <div class="banner">
+            <img src="banner.jpeg" alt="banner picture" class="banner">
+            <h1>Data Search</h1>
+            <p>Fill out the form to find the data you want!</p>
+        </div>
+        <div class="container">
+            <form onsubmit="return false;">
+            <p class="title">Command<span class="star">*</span></p>
+            <!-- Input Format: command + filename (Ex. rm / getPartitionLocations data.csv)-->
+            <input type="text" name="command" id="command" required>
+            
+            <div id="disCat">
+            <div style="width:50%">
+                <p class="database_choose">Databases<span class="star">*</span></p>
+                    <select id="databases" required>
+                    <option value="mongo">MongoDB</option>
+                    <option value="firebase">Firebase</option>
+                    <option value="mysql">MySQL</option>
+                    </select>
+            </div>
+            </div>
+            
+
+            <hr width="90%" id="headerHr">
+            
+            <input type="submit" value="Submit" onclick="return infoSubmit()" id="submit">
+            <button type="button" onclick="clearInfo()" id="clear">Clear</button>
+            </form>
+        </div>
+    </div>
+    <div id="explain">
+        <h1>
+            Input Examples
+        </h1>
+        <ul>
+            <li>
+                mkdir /test2/test3
+            </li>
+            <li>
+                ls /
+            </li>
+            <li>
+                cat /user/john testcsv.csv
+            </li>
+            <li>
+                rm /test2
+            </li>
+            <li>
+                getPartitionLocations /test/john/ small_test.csv
+            </li>
+            <li>
+                readPartition /user/john/ testcsv.csv 1 (start with 1)
+            </li>
+        </ul>
+    </div>
+    <div id="detail">
+        
+    </div>
+</body>
+</html>
