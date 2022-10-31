@@ -65,8 +65,8 @@ Backend service based on `Flask`.
 
 - Params:
 
-  - directory_path - the path of the new folder to be created, should be already encoded using encodeURIComponent()
-- db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
+  - directory_path - the path of the new folder to be created, should be already encoded using `encodeURIComponent()`
+  - db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
 - Return:
   - res - "success" or "failed"
 

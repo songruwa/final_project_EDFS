@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from urllib.parse import unquote_plus
 
 from MongoFS import MongoFS
@@ -13,6 +14,8 @@ pass_phrase = "dsci551"
 
 # creating a Flask app
 app = Flask(__name__,static_url_path='')
+CORS(app)
+
 mongoClient = MongoFS(mongo_conn_str)
 
 # hello world
@@ -24,7 +27,7 @@ def home():
 # @param: directory_path - the parent directory where the new folder will be created, should be already encoded using encodeURIComponent()
 # @param: directory_name - name for the new folder to be created
 # @param: db - the database used for EDFS, should be one of the "mongo", "mysql", "firebase"
-# example: PUT http://{domain_name}/api/v1/mkdir?directory_path=%2Ftest%2Fnewfile.txt&db=mongo
+# example: PUT http://{domain_name}/api/v1/mkdir?directory_path=%2Ftest%2Ftest2&db=mongo
 @app.route('/api/v1/mkdir', methods = ['PUT'])
 def mkdir():
 	args = request.args
