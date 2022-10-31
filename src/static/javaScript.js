@@ -30,7 +30,7 @@ function infoSubmit () {
     if (["mkdir", "rm"].includes(command_line)) {
         $.ajax({
             type: 'PUT',
-            url: 'http://192.168.1.68:5000/api/v1/' + command_line + url + file_name + "&db=" + database,
+            url: 'https://dsci551-367122.uw.r.appspot.com/api/v1/' + command_line + url + file_name + "&db=" + database,
             success: function (response) {
                 console.log(response);
                 return_detail(response);
@@ -39,7 +39,7 @@ function infoSubmit () {
     } else {
         $.ajax({
             type: 'GET',
-            url: 'http://192.168.1.68:5000/api/v1/' + command_line + url + file_name + "&db=" + database + partition_num,
+            url: 'https://dsci551-367122.uw.r.appspot.com/api/v1/' + command_line + url + file_name + "&db=" + database + partition_num,
             success: function (response) {
                 console.log(response);
                 return_detail(response);
