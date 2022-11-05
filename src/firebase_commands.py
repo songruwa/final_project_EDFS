@@ -97,12 +97,6 @@ def rm(file):
         pass
     url = base_url + file.split(".")[0] + ".json"
     res = requests.delete(url)
-    blob = bucket.blob(file[1:])
-    blob.delete()
-    # storage.delete("user/john/cars.csv")
-    url=base_url+file.split(".")[0]+".json"
-    res=requests.delete(url)
-    # print(res)
     if res.status_code == 200:
         return True
     else:
