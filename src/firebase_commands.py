@@ -76,7 +76,27 @@ def cat(file):
 
 def rm(file):
     # remove a file from the file system, e.g., rm /user/john/hello.txt
+    flag = False
+    if '.' in file:
+        flag = True
     bucket = storage.bucket()
+    try:
+        if flag:
+            blob=bucket.blob(file[1:])
+            blob.delete()
+            file=file.split('.')[0]
+            file2=file[1:]+"_"
+            blobs = bucket.list_blobs(prefix=file2)
+            for bl in blobs:
+                bl.delete()
+        else:
+            blobs = bucket.list_blobs(prefix=file[1:])
+            for blob in blobs:
+                blob.delete()
+    except Exception as e:
+        pass
+    url = base_url + file.split(".")[0] + ".json"
+    res = requests.delete(url)
     blob = bucket.blob(file[1:])
     blob.delete()
     # storage.delete("user/john/cars.csv")
