@@ -1,12 +1,16 @@
 from MongoFS import MongoFS
 import ordertools as SqlFS
 import firebase_commands as FbFS
+import csv
+
 
 # configs
 mongo_conn_str = "mongodb+srv://x39j1017d:aLJCQ5mMc1kulqQf@cluster0.exky2zv.mongodb.net/?retryWrites=true&w=majority"
 
 database=""
 mongoClient = MongoFS(mongo_conn_str)
+
+
 def getPartition(file,db):
     # get file's number of partitions from database db
     # return the number
@@ -22,20 +26,85 @@ def getPartition(file,db):
     except Exception as e:
         print("Wrong Database")
 
-
-def mapPartition(p,head,args,cal):
-    # p: the filename of partition p
-    # select rows from partition p according to args
-    # if cal is not false, do the analyse
-    print()
-
-def combine(arr,cal):
-    # combine the results of partitions' calculations
-    res=""
-    return res
-
 def getHeader(file, db):
-    print()
+    '''
+        getHeader reads the first partition of {file} in {db}, then use the first line
+        to get attribute information. Returns a map<string, int> that maps attribute name to index in row (0-indexed)
+        e.g. an csv table with schema ['id', 'name'], and value ['33', 'John Smith']. This functions will return a map:
+        {'id': 0, 'name': 1}
+    '''
+    res = []
+    try:
+        if db == 'mongo':
+            res = mongoClient.readPartition(file, 1)
+        elif db == 'mysql':
+            res = SqlFS.readPartition(file, 1)
+        elif db == 'firebase':
+            res = FbFS.readPartition(file, 1)
+    except:
+        print("ERROR: getHeader() read first partition of " + file + "  from " + db)
+
+    attributeNameToIndex = {}
+    reader = csv.reader([res[0]], delimiter=',')
+    firstLine = reader.__next__()
+    for i in range(len(firstLine)):
+        attributeNameToIndex[firstLine[i]] = i
+    return attributeNameToIndex
+
+
+def mapPartition(p, header, args, cal):
+    '''
+        mapPartition() works as the mapper function.
+        It processes the content of a partition and generate output
+
+        :param p: partition content, list of strings with each string representing a row in the document
+        :param header: csv header info, map<string, int>. It is used to get the index for an attribute in a row. e.g. header.get('second_attribute') == 1
+        :param args: a map with key being the attribute name, and val being the target value. Only those tuples that has exact same attribute value will be keeped
+        :param cal: a string indicating extra processing method we want to apply, MIN/MAX/COUNT  FIXME: how?
+    '''
+    ans = []
+    reader = csv.reader(p, delimiter=',') # assume all files need to be processed are csv files
+    for tuple in reader:
+        isMatch = True
+        for attribute, targetValue in args.items():
+            if attribute not in header:
+                print("WARN: invalid attribute " + attribute)
+                continue
+
+            index = header.get(attribute)
+            if index >= len(tuple) or tuple[index] != targetValue:
+                isMatch = False
+                continue
+        if isMatch:
+            ans.append(tuple)
+
+    if cal == 'COUNT':
+        return len(ans)
+
+    # if cal is not defined, just return all matching tuples
+    return ans
+
+def combine(mapPartitionResults, cal):
+    # combine the results of partitions' calculations
+    '''
+        combine() works as the reducer function.
+        It process all the results from the mapPartition() function
+
+        :param mapPartitionResults: list of results, each element is a return value from mapPartition()
+        :param cal: a string indicating extra processing method we want to apply, MIN/MAX/COUNT  FIXME: how?
+    '''
+
+    if cal == 'COUNT':
+        ans = 0
+        for count in mapPartitionResults:
+            ans += int(count)
+        return ans
+
+    # if cal is not defined, just combine all tuples
+    ans = []
+    for mapResult in mapPartitionResults:
+        ans += mapResult
+    return ans
 
 def manage(args, table, db, cal=False):
     # args: {} all fields and their values
