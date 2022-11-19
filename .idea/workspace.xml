@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="33564ed6-efc1-40a1-a871-0d46a7221036" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/query.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +41,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1668890182318</updated>
-      <workItem from="1668890184932" duration="846000" />
     </task>
     <servers />
   </component>
