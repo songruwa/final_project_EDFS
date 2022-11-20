@@ -129,3 +129,19 @@ def manage(args, table, db, cal=False):
     res=combine(results,cal)
     return res
 
+
+def main():
+    args = {}
+    args['Sex Code'] = 'M'
+    args['Arrest Type Code'] = 'I'
+    res = manage(args, '/crime/arrest.csv', 'mongo', 'COUNT')
+    
+    print(res)
+    #for row in res:
+        #print(row)
+
+    mongoClient.close()
+    return 0
+
+if __name__ == "__main__":
+    main()

@@ -179,8 +179,8 @@ def readPartition(file, partition):
     res = str(f, encoding='utf-8').replace('\r', '')
     res = res.strip()
     res = res.split('\n')
-    print(res)
-    print(type(res))
+    # print(res)
+    # print(type(res))
     return res
 
 
@@ -191,8 +191,10 @@ if __name__ == '__main__':
     # rm("/user/john/testcsv.csv")
     # res=put("testcsv.csv","/user/john",3)
     # print(res)
-    cat("/user/john/testcsv.csv")
-    # readPartition("/user/john/testcsv.csv", 2)
+    # cat("/user/john/testcsv.csv")
+    print(ls("/"))
+    print(ls("/crime"))
+    readPartition("/crime/arrest.csv", 1)
     #getPartitionLocations("/user/john/test.txt")
 
 

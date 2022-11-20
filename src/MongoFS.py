@@ -150,11 +150,13 @@ class MongoFS(EDFSInterface):
         parent_coll = self.client.namenode.directory.find({"fullPath": directory_path})
         if len(list(parent_coll.clone())) != 1 or not parent_coll[0]["isDirectory"]:
             # parent directory does not exist or is not a directory
+            print("ERROR: parent directory does not exist or is not a directory: " + directory_path)
             return False
         
         itself_coll = self.client.namenode.directory.find({"fullPath": file_path})
         if len(list(itself_coll.clone())) != 0:
             # a node with same name already exist
+            print("ERROR: a node with same name already exist")
             return False
 
         # clear potential dirty data in datanode before writing data partitions
@@ -174,6 +176,7 @@ class MongoFS(EDFSInterface):
             res = self.putPartition(file, should_read, file_path, partition_num)
             if not res:
                 # failed to write data, return err without retrying
+                print("ERROR: failed to write data, return err without retrying")
                 return False
 
         # create entry in namenode
@@ -267,3 +270,6 @@ class MongoFS(EDFSInterface):
             data += json.loads(data_coll[0]["dataBlob"])
 
         return data, True
+
+    def close(self):
+        self.client.close()
