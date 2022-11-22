@@ -141,7 +141,7 @@ def combine(mapPartitionResults, cal):
     return ans
 
 
-def manage(table, database, argsEq, argsGte, argsLte, cal=False):
+def manage(table, database, argsEq, argsGte, argsLte, cal=None):
     # table: String represeting location of the table in EDFS eg. /crime/Crime_data.csv
     # database: String representing database, one of ["mongo", "firebase", "mysql"]
     # argsEq, argsGte, argsLte: a map with key being the attribute name, and val being the target value. Used for "equal", "greater or equal" and "less or equal" opearation
@@ -169,7 +169,7 @@ def manage(table, database, argsEq, argsGte, argsLte, cal=False):
         results.append(result)
 
     res = combine(results, cal)
-    return res
+    return res, header
 
 
 def main():
@@ -182,7 +182,7 @@ def main():
     argsGte['Arrest Date'] = '01/01/2022'
     argsLte['Arrest Date'] = '01/31/2022'
 
-    res = manage('/crime/arrest.csv', 'mongo', argsEq, argsGte, argsLte)
+    res, _ = manage('/crime/arrest.csv', 'mongo', argsEq, argsGte, argsLte)
 
     print(res)
 

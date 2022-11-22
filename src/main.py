@@ -5,6 +5,7 @@ from urllib.parse import unquote_plus
 from MongoFS import MongoFS
 import ordertools as SqlFS
 import firebase_commands as FbFS
+import query as search
 
 # configs
 mongo_conn_str = "mongodb+srv://x39j1017d:aLJCQ5mMc1kulqQf@cluster0.exky2zv.mongodb.net/?retryWrites=true&w=majority"
@@ -176,6 +177,31 @@ def readPartition():
 
 	return jsonify({'content': res})
 
+@app.route('/api/v1/query', methods = ['POST'])
+def query():
+	req = request.json
+	table = req.get('table')
+	database = req.get('database')
+	argsEq = req.get('argsEq', {})
+	argsGte = req.get('argsGte', {})
+	argsLte = req.get('argsLte', {})
+	cal = req.get('cal', None)
+
+	res, attrToIndex = search.manage(table, database, argsEq, argsGte, argsLte, cal)
+	header = [None] * len(attrToIndex)
+	for k, v in attrToIndex.items():
+		header[v] = k
+
+	if cal is None:
+		objRes = []
+		for tuple in res:
+			obj = {}
+			for i in range(min(len(header), len(tuple))):
+				obj[header[i]] = tuple[i]
+			objRes.append(obj)
+		return jsonify({'res': objRes})
+
+	return jsonify({'res': res})
 
 # driver function
 if __name__ == '__main__':

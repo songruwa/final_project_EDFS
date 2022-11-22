@@ -147,7 +147,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.230.79:5000/api/v1/getPartitionLocations?file_path=%2Ftest%2Fjohn%2Fsmall_test.csv&db=mongo",
+					"raw": "http://192.168.230.79:5000/api/v1/getPartitionLocations?file_path=%2Ftest%2Fjohn%2Fsmall_test.csv&db=firebase",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -168,7 +168,7 @@
 						},
 						{
 							"key": "db",
-							"value": "mongo"
+							"value": "firebase"
 						}
 					]
 				}
@@ -208,6 +208,39 @@
 							"key": "partition_num",
 							"value": "1"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "query",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"table\": \"/crime/arrest.csv\",\r\n    \"database\": \"mongo\",\r\n    \"argsEq\": {\r\n        \"Sex Code\": \"M\",\r\n        \"Arrest Type Code\": \"I\"\r\n    },\r\n    \"argsLte\": {\r\n        \"Arrest Date\": \"01/31/2022\"\r\n    },\r\n    \"argsGte\": {\r\n        \"Arrest Date\": \"01/01/2022\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://172.21.13.132:5000/api/v1/query",
+					"protocol": "http",
+					"host": [
+						"172",
+						"21",
+						"13",
+						"132"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"query"
 					]
 				}
 			},
