@@ -158,3 +158,70 @@ def readPartition(order, partition):
 
     return res.values.tolist()
 
+# # order example: /dsci551project
+# return all tables in dsci551project
+def ls(order, my_conn):
+    order = "" if order == "/" else order
+
+    # orderlist result: ['','dsci551project']
+    orderlist = order.split('/')
+
+    if orderlist[1] != 'dsci551project' or orderlist[2] not in my_conn.table_names():
+        return 'Input path does not exist'
+
+    # print all tables in database- dsci551project
+    if len(orderlist) == 2 and orderlist[1] == 'dsci551project':
+        return my_conn.table_names()
+    # print column names in a target table
+    # eg: '/dsci551project/LAPD_call'
+    elif len(orderlist) == 3 and orderlist[1] == 'dsci551project':
+        # show table's column names
+        insp = inspect(my_conn)
+        columns_table = insp.get_columns(orderlist[2])
+        res = []
+        for c in columns_table[2:]:
+            res.append(c['name'])
+        return res
+    # 1. if root directory is not the proeject database
+    # 2. if input table doesn't exist in dsci551project
+
+
+
+# example:  '/dsci551project/LAPD_call/Area_Occ'
+# return all data entries in Area_Occ column
+# other instance: '/dsci551project/LAPD_call'
+# return all table data entries in LAPD_call
+def cat(order, my_conn):
+    order = "" if order == "/" else order
+    orderlist = order.split('/')
+
+    # 1. if root directory is not the proeject database
+    # 2. if input table doesn't exist in dsci551project
+    if orderlist[1] != 'dsci551project' or orderlist[2] not in my_conn.table_names():
+        return 'Input path does not exist'
+    insp = inspect(my_conn)
+    columns_table = insp.get_columns(orderlist[2])
+    res = []
+    for c in columns_table[2:]:
+        res.append(c['name'])
+    if orderlist[3] not in res:
+        return 'Input path does not exist'
+
+    if len(orderlist) == 2 and orderlist[1] == 'dsci551project':
+        return 'This is a foler, not a file, cannot show contents'
+    # print column entries in a target column
+    # eg: '/dsci551project/LAPD_call'
+    elif len(orderlist) == 3 and orderlist[1] == 'dsci551project':
+        user_table = pd.read_sql_table(table_name=orderlist[2], con=my_conn)
+        return user_table
+    # print all entries in a target column
+    # eg: '/dsci551project/LAPD_call/Area_Occ'
+    elif len(orderlist) == 4 and orderlist[1] == 'dsci551project':
+        query = f'SELECT {orderlist[3]} FROM {orderlist[2]} ;'
+        result = my_conn.execute(query)
+        res = []
+        for i in result:
+            res.append(i)
+        return res
+
+
