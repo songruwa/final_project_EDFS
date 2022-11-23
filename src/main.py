@@ -186,6 +186,7 @@ def query():
 	argsGte = req.get('argsGte', {})
 	argsLte = req.get('argsLte', {})
 	cal = req.get('cal', None)
+	startAt = req.get('startAt', 0)
 
 	res, attrToIndex = search.manage(table, database, argsEq, argsGte, argsLte, cal)
 	header = [None] * len(attrToIndex)
@@ -194,7 +195,7 @@ def query():
 
 	if cal is None:
 		objRes = []
-		for tuple in res:
+		for tuple in res[startAt : min(len(res), startAt + 1000)]:
 			obj = {}
 			for i in range(min(len(header), len(tuple))):
 				obj[header[i]] = tuple[i]
