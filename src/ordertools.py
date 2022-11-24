@@ -239,4 +239,5 @@ def cat(order):
         # bc when in database imported table's name is in this style: 'fileid_fileID'
         nn_query = 'SELECT * FROM {table}'.format(table='fileid_'+str(c_id))
         df = pd.read_sql(nn_query, my_conn)
-        return df
+        vals = df.to_csv().split('\n')
+        return vals
