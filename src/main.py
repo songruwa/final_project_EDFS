@@ -65,7 +65,7 @@ def ls():
 		if db == 'mongo':
 			res = mongoClient.ls(directory_path)
 		elif db == 'mysql':
-			return "NOT IMPLEMENTED"
+			res = SqlFS.ls(directory_path)
 		elif db == 'firebase':
 			res = FbFS.ls(directory_path)
 	except:
@@ -89,7 +89,7 @@ def cat():
 		if db == 'mongo':
 			res = mongoClient.cat(file_path)
 		elif db == 'mysql':
-			return "NOT IMPLEMENTED"
+			res = SqlFS.cat(file_path)
 		elif db == 'firebase':
 			res = FbFS.cat(file_path)
 	except:
@@ -106,6 +106,9 @@ def rm():
 	args = request.args
 	file_path = unquote_plus(args.get('file_path'))
 	db = args.get('db')
+
+	if file_path[:6] == '/crime':
+		return jsonify({"res": "failed", "err_str": "protected folder"}), 500
 
 	res = False
 	try:
