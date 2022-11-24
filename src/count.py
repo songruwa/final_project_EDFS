@@ -1,7 +1,9 @@
 from pyspark import SparkContext,SparkConf
 from datetime import datetime as dt
+import time
 
 def analyse(filename,argsEq, argsGte, argsLte, cal=None):
+    starttime=time.time()
     conf = SparkConf().setAppName('WordCount').setMaster('local[*]')
     #conf = SparkConf().setAppName('WordCount').setMaster("spark://ec2-13-57-254-114.us-west-1.compute.amazonaws.com:7077")
     conf.set("spark.shuffle.service.enabled", "false").set("spark.dynamicAllocation.enabled", "false")
@@ -30,7 +32,9 @@ def analyse(filename,argsEq, argsGte, argsLte, cal=None):
     print(rdd_res)
     # 2
     sc.stop()
-    return rdd_res
+    endtime=time.time()
+    totaltime=endtime-starttime
+    return rdd_res,totaltime
 
 
 def map_fun(header,row,argsEq, argsGte, argsLte, cal):
@@ -101,7 +105,8 @@ def map_return(match,cal,header,row):
 
 if __name__ == '__main__':
 
-    res=analyse('arrest.csv',{ "Gender": "M",  "Arrest Type Code": "I"},{ "Date": "11/15/2021" },{ "Date": "11/17/2021" })
+    res,totaltime=analyse('arrest.csv',{ "Gender": "M",  "Arrest Type Code": "I"},{ "Date": "11/15/2021" },{ "Date": "11/17/2021" })
     #request body:{"table": "/crime/arrest.csv", "database": "mongo", "argsEq": { "Gender": "M",  "Arrest Type Code": "I"}, "argsLte": { "Arrest Date": "01/05/2022" }, "argsGte": { "Arrest Date": "01/01/2022" },"cal": "COUNT"}
     print(res)
     # [{'Date': '11/16/2021', 'Location': 'N Hollywood', 'Gender': 'M', 'Arrest Type Code': 'I'}, {'Date': '11/17/2021', 'Location': 'Devonshire', 'Gender': 'M', 'Arrest Type Code': 'I'},...]
+    print(totaltime)
