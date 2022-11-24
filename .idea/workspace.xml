@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="33564ed6-efc1-40a1-a871-0d46a7221036" name="Changes" comment="">
+    <list default="true" id="33564ed6-efc1-40a1-a871-0d46a7221036" name="Changes" comment="1. add comments &#10;2. fix bug about rm">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/connect.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ordertools.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ordertools.py" afterDir="false" />
@@ -11,7 +11,15 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/main" />
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -95,6 +103,14 @@
       <option name="presentableId" value="Default" />
       <updated>1668890182318</updated>
     </task>
+    <task id="LOCAL-00001" summary="1. add comments &#10;2. fix bug about rm">
+      <created>1669187913930</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1669187913930</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -105,10 +121,26 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="tianliang2" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="1. add comments &#10;2. fix bug about rm" />
+    <option name="LAST_COMMIT_MESSAGE" value="1. add comments &#10;2. fix bug about rm" />
   </component>
 </project>

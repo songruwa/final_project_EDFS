@@ -46,11 +46,11 @@ def __findpath(order):
             t_list = pd.read_sql(f"SELECT t.id FROM (SELECT * FROM `meta data` WHERE filename = '{filename}') AS t, "
                                  f"`directory` AS d WHERE d.`children_id` = t.id AND `parent_id` = {c_id}", my_conn)
         if t_list.empty:
-            print(False, c_id, orderlist[i:])
+            # print(False, c_id, orderlist[i:])
             return False, c_id, orderlist[i:]
         else:
             c_id = t_list['id'][0]
-    print(True, c_id, orderlist[i:])
+    # print(True, c_id, orderlist[i:])
     return True, c_id, orderlist[i:]
 
 
@@ -105,13 +105,14 @@ def __delete_file_path(start_id):
             my_conn.execute(f"DROP TABLE `fileid_{t}`")
         children = list(pd.read_sql(f"SELECT children_id AS id FROM DIRECTORY WHERE parent_id = {t}", my_conn)["id"])
         queue += children
-    my_conn.execute(
-        f"DELETE FROM `directory` WHERE children_id IN ({str(id_list)[1:-1]})"
-    )
-    print("the directory table drop success")
-    my_conn.execute(
-        f"DELETE FROM `meta data` WHERE id IN ({str(id_list)[1:-1]})"
-    )
+    if id_list:
+        my_conn.execute(
+            f"DELETE FROM `directory` WHERE children_id IN ({str(id_list)[1:-1]})"
+        )
+        print("the directory table drop success")
+        my_conn.execute(
+            f"DELETE FROM `meta data` WHERE id IN ({str(id_list)[1:-1]})"
+        )
     print("the meta data table drop success")
     return
 
@@ -124,6 +125,7 @@ def __create_file(c_id, dataframe, p):
         tips:
     """
     name = f"fileid_{c_id}"
+    # The 'index' column would be stored in the sql as hash key
     dataframe.to_sql(name=name, con=my_conn)
     my_conn.execute(f"ALTER TABLE `{name}` PARTITION BY HASH(`index`) PARTITIONS {p};")
 
@@ -154,12 +156,13 @@ def rm(order):
 
 def put(filename, order, k):
     # e.g., put(cars.csv, /user/john, k = # partitions)
-
+    """The file in mysql should have a new column index as hash key"""
     try:
         mtime = 0
         tsign, p_id, iteration = __findpath(order)
+        tname = filename.split("/")[-1]
         my_conn.execute(
-            f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{filename}', '1', '{mtime}')")
+            f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{tname}', '1', '{mtime}')")
         result = pd.read_sql("SELECT LAST_INSERT_ID()", my_conn)
         c_id = result["LAST_INSERT_ID()"][0]
         my_conn.execute(
@@ -168,10 +171,13 @@ def put(filename, order, k):
         __create_file(c_id, dataframe, k)
         return True
     except:
+        print("put false!")
         return False
 
 
 def getPartitionLocations(order):
+    """Be noticed that all the partition is named start as p. So, when using readPartition, please don't enter
+    the first p, please enter the number behind the p directly."""
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
         print("can not find file")
@@ -179,20 +185,18 @@ def getPartitionLocations(order):
     res = pd.read_sql(
         f"SELECT partition_name FROM `information_schema`.`PARTITIONS` AS p WHERE p.table_name = 'fileid_{c_id}'",
         my_conn)
-    print(res)
-    return res.values.tolist()
+    return res['PARTITION_NAME'].values.tolist()
 
 
 def readPartition(order, partition):
+    """The variable partition should be a number"""
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
         print("can not find file")
         return
     sql = f"SELECT * from fileid_{c_id} PARTITION(p{partition})"
     res = pd.read_sql(sql, my_conn)
-    print(res)
-
-    return res.values.tolist()
+    return res.iloc[:, 1:].to_csv(index=False).split('\n')
 
 
 # # order example: /dsci551project
@@ -207,17 +211,18 @@ def ls(order):
     # now has folder id; find folder id in direcdtory, then find all file whose parent_id equal to folder id
     # first find child_id in `meta data`
     query = 'SELECT children_id FROM directory WHERE parent_id = {id}'.format(id=c_id)
-    df = pd.read_sql(query,my_conn)
+    df = pd.read_sql(query, my_conn)
 
     # second, find file name based on child_id in `meta data`
     res = []
     for i in df['children_id'].tolist():
         n_query = 'SELECT filename FROM `meta data` WHERE id = {id}'.format(id=i)
-        daf = pd.read_sql(n_query,my_conn)
+        daf = pd.read_sql(n_query, my_conn)
         res.append(daf['filename'].tolist())
     res = list(itertools.chain.from_iterable(res))
 
     return res
+
 
 # example:  '/dsci551project/LAPD_call/Area_Occ'
 # return all data entries in Area_Occ column
@@ -237,7 +242,7 @@ def cat(order):
     elif 1 in df['isFile'].tolist():
         # why table name in this way?
         # bc when in database imported table's name is in this style: 'fileid_fileID'
-        nn_query = 'SELECT * FROM {table}'.format(table='fileid_'+str(c_id))
+        nn_query = 'SELECT * FROM {table}'.format(table='fileid_' + str(c_id))
         df = pd.read_sql(nn_query, my_conn)
-        vals = df.to_csv().split('\n')
+        vals = df.iloc[:, 1:].to_csv(index=False).split('\n')
         return vals
