@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from urllib.parse import unquote_plus
+import time
 
 from MongoFS import MongoFS
 import ordertools as SqlFS
 import firebase_commands as FbFS
 import query as search
+import count as SparkFS
 
 # configs
 mongo_conn_str = "mongodb+srv://x39j1017d:aLJCQ5mMc1kulqQf@cluster0.exky2zv.mongodb.net/?retryWrites=true&w=majority"
@@ -191,10 +193,15 @@ def query():
 	cal = req.get('cal', None)
 	startAt = req.get('startAt', 0)
 
-	res, attrToIndex = search.manage(table, database, argsEq, argsGte, argsLte, cal)
-	header = [None] * len(attrToIndex)
-	for k, v in attrToIndex.items():
-		header[v] = k
+	res = None
+	header = []
+	startTime=time.time()
+	if database == 'spark':
+		res, header = SparkFS.analyse(table, argsEq, argsGte, argsLte, cal)
+	else:
+		res, header = search.manage(table, database, argsEq, argsGte, argsLte, cal)
+	endTime = time.time()
+	totalTime = endTime - startTime
 
 	if cal is None:
 		objRes = []
@@ -203,9 +210,12 @@ def query():
 			for i in range(min(len(header), len(tuple))):
 				obj[header[i]] = tuple[i]
 			objRes.append(obj)
-		return jsonify({'res': objRes})
+		res = objRes
 
-	return jsonify({'res': res})
+	return jsonify({
+		'res': res,
+		'computationTimeSecond': totalTime 
+	})
 
 # driver function
 if __name__ == '__main__':

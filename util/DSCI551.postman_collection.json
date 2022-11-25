@@ -45,13 +45,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.230.79:5000/api/v1/ls?directory_path=%2F&db=mongo",
+					"raw": "http://172.21.10.218:5000/api/v1/ls?directory_path=%2F&db=mysql",
 					"protocol": "http",
 					"host": [
-						"192",
-						"168",
-						"230",
-						"79"
+						"172",
+						"21",
+						"10",
+						"218"
 					],
 					"port": "5000",
 					"path": [
@@ -66,7 +66,7 @@
 						},
 						{
 							"key": "db",
-							"value": "mongo"
+							"value": "mysql"
 						}
 					]
 				}
@@ -79,15 +79,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.230.79:5000/api/v1/cat?file_path=%2Fuser%2Fjohn%2Ftestcsv.csv&db=firebase",
-					"protocol": "http",
+					"raw": "https://dsci551-367122.uw.r.appspot.com/api/v1/cat?file_path=%2Fcrime%2farrest.csv&db=firebase",
+					"protocol": "https",
 					"host": [
-						"192",
-						"168",
-						"230",
-						"79"
+						"dsci551-367122",
+						"uw",
+						"r",
+						"appspot",
+						"com"
 					],
-					"port": "5000",
 					"path": [
 						"api",
 						"v1",
@@ -96,7 +96,7 @@
 					"query": [
 						{
 							"key": "file_path",
-							"value": "%2Fuser%2Fjohn%2Ftestcsv.csv"
+							"value": "%2Fcrime%2farrest.csv"
 						},
 						{
 							"key": "db",
@@ -220,7 +220,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"table\": \"/crime/arrest.csv\",\r\n    \"database\": \"mongo\",\r\n    \"argsEq\": {\r\n        \"Sex Code\": \"M\",\r\n        \"Arrest Type Code\": \"I\"\r\n    },\r\n    \"argsLte\": {\r\n        \"Arrest Date\": \"01/31/2022\"\r\n    },\r\n    \"argsGte\": {\r\n        \"Arrest Date\": \"01/01/2022\"\r\n    }\r\n}",
+					"raw": "{\r\n    \"table\": \"/crime/collision.csv\",\r\n    \"database\": \"firebase\",\r\n    \"argsEq\": {\r\n        \"Gender\": \"F\",\r\n        \"Date\": \"07/03/2019\"\r\n    },\r\n    \"argsLte\": {\r\n    },\r\n    \"argsGte\": {\r\n    },\r\n    \"cal\": \"COUNT\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -228,13 +228,13 @@
 					}
 				},
 				"url": {
-					"raw": "http://172.21.13.132:5000/api/v1/query",
+					"raw": "http://172.26.220.165:5000/api/v1/query",
 					"protocol": "http",
 					"host": [
 						"172",
-						"21",
-						"13",
-						"132"
+						"26",
+						"220",
+						"165"
 					],
 					"port": "5000",
 					"path": [
