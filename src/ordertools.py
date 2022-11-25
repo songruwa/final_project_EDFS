@@ -190,6 +190,7 @@ def getPartitionLocations(order):
 
 def readPartition(order, partition):
     """The variable partition should be a number"""
+    partition -= 1 # internally we still use 0-indexing, do the conversion here
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
         print("can not find file")

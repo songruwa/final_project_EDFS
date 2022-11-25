@@ -146,7 +146,7 @@ def manage(table, database, argsEq, argsGte, argsLte, cal=None):
     # get header of the csv file
     header = []
     results = []
-    for partitionNum in range(1, partitionCount):
+    for partitionNum in range(1, partitionCount + 1):
         if database == 'mongo':
             p = mongoClient.readPartition(table, partitionNum)
         elif database == 'mysql':
