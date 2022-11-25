@@ -197,7 +197,11 @@ def query():
 	header = []
 	startTime=time.time()
 	if database == 'spark':
-		res, header = SparkFS.analyse(table, argsEq, argsGte, argsLte, cal)
+		# run queyr on Spark instead of EDFS
+		# FIXME: has to translate EDFS path to local path for Spark
+		fileName = table[table.rfind("/") + 1:]
+		filePath = "./cleaned_data/" + fileName
+		res, header = SparkFS.analyse(filePath, argsEq, argsGte, argsLte, cal)
 	else:
 		res, header = search.manage(table, database, argsEq, argsGte, argsLte, cal)
 	endTime = time.time()
