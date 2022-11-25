@@ -49,7 +49,7 @@ def ls(dir):
     # listing content of a given directory, e.g., ls /user
     # dir: String
     # return: list  e.g. ['jason', 'john']
-        url=base_url+dir+".json"
+    url=base_url+dir+".json"
     response= requests.get(url)
     data=response.text
     dict_data=ast.literal_eval(data)
