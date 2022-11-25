@@ -85,6 +85,7 @@ def cat():
 	args = request.args
 	file_path = unquote_plus(args.get('file_path'))
 	db = args.get('db')
+	startAt = args.get('startAt', 0)
 	
 	res = []
 	try:
@@ -97,6 +98,8 @@ def cat():
 	except:
 		return jsonify({"res": "failed"}), 500
 
+
+	res = res[startAt : startAt + 1000]
 	return jsonify({'content': res})
 
 
@@ -168,6 +171,7 @@ def readPartition():
 	file_path = unquote_plus(args.get('file_path'))
 	partition_num = int(args.get('partition_num'))
 	db = args.get('db')
+	startAt = args.get('startAt', 0)
 
 	res = []
 	try:
@@ -179,6 +183,8 @@ def readPartition():
 			res = FbFS.readPartition(file_path, partition_num)
 	except:
 		return jsonify({"res": "failed"}), 500
+
+	res = res[startAt : startAt + 1000]
 
 	return jsonify({'content': res})
 
