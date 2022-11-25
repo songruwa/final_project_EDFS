@@ -30,16 +30,10 @@ def getPartitionCount(file, db):
 def getHeader(firstPartition):
     '''
         getHeader reads the first line of the first partition to get attribute information.
-        Returns a map<string, int> that maps attribute name to index in row (0-indexed)
-        e.g. an csv table with schema ['id', 'name'], and value ['33', 'John Smith']. This functions will return a map:
-        {'id': 0, 'name': 1}
+        return a string list[], each element represent one attribute
     '''
-    attributeNameToIndex = {}
     reader = csv.reader([firstPartition[0]], delimiter=',')
-    firstLine = reader.__next__()
-    for i in range(len(firstLine)):
-        attributeNameToIndex[firstLine[i]] = i
-    return attributeNameToIndex
+    return reader.__next__()
 
 
 def getNumOrDate(inputStr):
@@ -81,7 +75,7 @@ def mapPartition(p, header, argsEq, argsGte, argsLte, cal):
                 print("WARN: invalid attribute " + attribute)
                 continue
 
-            index = header.get(attribute)
+            index = header.index(attribute)
             if index >= len(tuple) or tuple[index] != targetValue:
                 isMatch = False
                 break
@@ -93,7 +87,7 @@ def mapPartition(p, header, argsEq, argsGte, argsLte, cal):
                 print("WARN: invalid attribute " + attribute)
                 continue
 
-            index = header.get(attribute)
+            index = header.index(attribute)
             if index >= len(tuple) or getNumOrDate(tuple[index]) > getNumOrDate(lteValue):
                 isMatch = False
                 break
@@ -105,7 +99,7 @@ def mapPartition(p, header, argsEq, argsGte, argsLte, cal):
                 print("WARN: invalid attribute " + attribute)
                 continue
 
-            index = header.get(attribute)
+            index = header.index(attribute)
             if index >= len(tuple) or getNumOrDate(tuple[index]) < getNumOrDate(gteValue):
                 isMatch = False
                 break
@@ -150,7 +144,7 @@ def manage(table, database, argsEq, argsGte, argsLte, cal=None):
     partitionCount = getPartitionCount(table, database)
     
     # get header of the csv file
-    header = {}
+    header = []
     results = []
     for partitionNum in range(1, partitionCount):
         if database == 'mongo':

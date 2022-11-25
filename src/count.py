@@ -1,9 +1,8 @@
 from pyspark import SparkContext,SparkConf
 from datetime import datetime as dt
-import time
 
 def analyse(filename,argsEq, argsGte, argsLte, cal=None):
-    starttime=time.time()
+    
     conf = SparkConf().setAppName('WordCount').setMaster('local[*]')
     #conf = SparkConf().setAppName('WordCount').setMaster("spark://ec2-13-57-254-114.us-west-1.compute.amazonaws.com:7077")
     conf.set("spark.shuffle.service.enabled", "false").set("spark.dynamicAllocation.enabled", "false")
@@ -32,9 +31,7 @@ def analyse(filename,argsEq, argsGte, argsLte, cal=None):
     print(rdd_res)
     # 2
     sc.stop()
-    endtime=time.time()
-    totaltime=endtime-starttime
-    return rdd_res,totaltime
+    return rdd_res, header
 
 
 def map_fun(header,row,argsEq, argsGte, argsLte, cal):
