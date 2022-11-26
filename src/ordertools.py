@@ -190,14 +190,17 @@ def getPartitionLocations(order):
 
 def readPartition(order, partition):
     """The variable partition should be a number"""
-    partition -= 1 # internally we still use 0-indexing, do the conversion here
+    partition -= 1  # internally we still use 0-indexing, do the conversion here
     tsign, c_id, iteration = __findpath(order)
     if not tsign:
         print("can not find file")
         return
     sql = f"SELECT * from fileid_{c_id} PARTITION(p{partition})"
     res = pd.read_sql(sql, my_conn)
-    return res.iloc[:, 1:].to_csv(index=False).split('\n')
+    if partition == 0:
+        return res.iloc[:, 1:].to_csv(index=False).split('\n')
+    else:
+        return res.iloc[:, 1:].to_csv(index=False, header=False).split('\n')
 
 
 # # order example: /dsci551project
