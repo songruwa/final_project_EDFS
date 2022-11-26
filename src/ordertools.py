@@ -196,7 +196,10 @@ def readPartition(order, partition):
         return
     sql = f"SELECT * from fileid_{c_id} PARTITION(p{partition})"
     res = pd.read_sql(sql, my_conn)
-    return res.iloc[:, 1:].to_csv(index=False).split('\n')
+    if partition == 1:
+        return res.iloc[:, 1:].to_csv(index=False).split('\n')
+    else:
+        return res.iloc[:, 1:].to_csv(index=False, header=False).split('\n')
 
 
 # # order example: /dsci551project
