@@ -31,7 +31,7 @@ class EDFSInterface(ABC):
     def getPartitionLocations(self, file_path):
         pass
     
-    # return the content of {partition_num}-th partition of the file {file_path}, 0-indexed
+    # return the content of {partition_num}-th partition of the file {file_path}, 1-indexed
     @abstractmethod
     def readPartition(self, file_path, partition_num):
         pass

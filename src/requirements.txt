@@ -5,3 +5,4 @@ firebase_admin
 pymysql
 sqlalchemy
 pymongo
+pyspark

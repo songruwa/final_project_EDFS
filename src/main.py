@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from urllib.parse import unquote_plus
+import time
 
 from MongoFS import MongoFS
 import ordertools as SqlFS
 import firebase_commands as FbFS
 import query as search
+import count as SparkFS
 
 # configs
 mongo_conn_str = "mongodb+srv://x39j1017d:aLJCQ5mMc1kulqQf@cluster0.exky2zv.mongodb.net/?retryWrites=true&w=majority"
@@ -83,6 +85,7 @@ def cat():
 	args = request.args
 	file_path = unquote_plus(args.get('file_path'))
 	db = args.get('db')
+	startAt = args.get('startAt', 0)
 	
 	res = []
 	try:
@@ -95,6 +98,8 @@ def cat():
 	except:
 		return jsonify({"res": "failed"}), 500
 
+
+	res = res[startAt : startAt + 1000]
 	return jsonify({'content': res})
 
 
@@ -166,6 +171,7 @@ def readPartition():
 	file_path = unquote_plus(args.get('file_path'))
 	partition_num = int(args.get('partition_num'))
 	db = args.get('db')
+	startAt = args.get('startAt', 0)
 
 	res = []
 	try:
@@ -177,6 +183,8 @@ def readPartition():
 			res = FbFS.readPartition(file_path, partition_num)
 	except:
 		return jsonify({"res": "failed"}), 500
+
+	res = res[startAt : startAt + 1000]
 
 	return jsonify({'content': res})
 
@@ -191,10 +199,19 @@ def query():
 	cal = req.get('cal', None)
 	startAt = req.get('startAt', 0)
 
-	res, attrToIndex = search.manage(table, database, argsEq, argsGte, argsLte, cal)
-	header = [None] * len(attrToIndex)
-	for k, v in attrToIndex.items():
-		header[v] = k
+	res = None
+	header = []
+	startTime=time.time()
+	if database == 'spark':
+		# run queyr on Spark instead of EDFS
+		# FIXME: has to translate EDFS path to local path for Spark
+		fileName = table[table.rfind("/") + 1:]
+		filePath = "./cleaned_data/" + fileName
+		res, header = SparkFS.analyse(filePath, argsEq, argsGte, argsLte, cal)
+	else:
+		res, header = search.manage(table, database, argsEq, argsGte, argsLte, cal)
+	endTime = time.time()
+	totalTime = endTime - startTime
 
 	if cal is None:
 		objRes = []
@@ -203,9 +220,12 @@ def query():
 			for i in range(min(len(header), len(tuple))):
 				obj[header[i]] = tuple[i]
 			objRes.append(obj)
-		return jsonify({'res': objRes})
+		res = objRes
 
-	return jsonify({'res': res})
+	return jsonify({
+		'res': res,
+		'computationTimeSecond': totalTime 
+	})
 
 # driver function
 if __name__ == '__main__':

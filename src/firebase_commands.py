@@ -1,3 +1,4 @@
+import ast
 import json
 import os
 import requests
@@ -51,10 +52,15 @@ def ls(dir):
     url=base_url+dir+".json"
     response= requests.get(url)
     data=response.text
-    data_json=json.loads(data)
-    keys=list(data_json.keys())
-    #print(keys)
-    return keys
+    dict_data=ast.literal_eval(data)
+    res=[]
+    for key in dict_data.keys():
+        value=dict_data.get(key)
+        if 'type' in value:
+            key=key+'.'+value.get('type')
+        res.append(key)
+    print(res)
+    return res
 
 
 def cat(file):
