@@ -6,8 +6,8 @@ import itertools
 
 pymysql.install_as_MySQLdb()
 
-# address = "mysql+mysqldb://admin:dsci-551@database-2.cxay4obryyr9.us-west-1.rds.amazonaws.com:3306/dsci551project"
-address = "mysql+mysqldb://root:123456@localhost/dsci551project"
+address = "mysql+mysqldb://admin:dsci-551@database-2.cxay4obryyr9.us-west-1.rds.amazonaws.com:3306/dsci551project"
+# address = "mysql+mysqldb://root:123456@localhost/dsci551project"
 my_conn = sqlalchemy.create_engine(address)
 
 
