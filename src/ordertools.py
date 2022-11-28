@@ -160,15 +160,18 @@ def put(filename, order, k):
     try:
         mtime = 0
         tsign, p_id, iteration = __findpath(order)
-        tname = filename.split("/")[-1]
-        my_conn.execute(
-            f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{tname}', '1', '{mtime}')")
-        result = pd.read_sql("SELECT LAST_INSERT_ID()", my_conn)
-        c_id = result["LAST_INSERT_ID()"][0]
-        my_conn.execute(
-            f"INSERT INTO `directory` (`parent_id`, `children_id`) VALUES ('{p_id}', '{c_id}')")
-        dataframe = pd.read_csv(filename)
-        __create_file(c_id, dataframe, k)
+        if not tsign:
+            tname = filename.split("/")[-1]
+            my_conn.execute(
+                f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{tname}', '1', '{mtime}')")
+            result = pd.read_sql("SELECT LAST_INSERT_ID()", my_conn)
+            c_id = result["LAST_INSERT_ID()"][0]
+            my_conn.execute(
+                f"INSERT INTO `directory` (`parent_id`, `children_id`) VALUES ('{p_id}', '{c_id}')")
+            dataframe = pd.read_csv(filename)
+            __create_file(c_id, dataframe, k)
+        else:
+            return False
         return True
     except:
         print("put false!")
