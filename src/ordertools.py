@@ -6,8 +6,8 @@ import itertools
 
 pymysql.install_as_MySQLdb()
 
-address = "mysql+mysqldb://admin:dsci-551@database-2.cxay4obryyr9.us-west-1.rds.amazonaws.com:3306/dsci551project"
-# address = "mysql+mysqldb://root:123456@localhost/dsci551project"
+# address = "mysql+mysqldb://admin:dsci-551@database-2.cxay4obryyr9.us-west-1.rds.amazonaws.com:3306/dsci551project"
+address = "mysql+mysqldb://root:123456@localhost/dsci551project"
 my_conn = sqlalchemy.create_engine(address)
 
 
@@ -160,17 +160,19 @@ def put(filename, order, k):
     try:
         mtime = 0
         tsign, p_id, iteration = __findpath(order)
+        tname = filename.split("/")[-1]
+        tsign, t_p_id, iteration = __findpath(order+"/"+tname)
         if not tsign:
-            tname = filename.split("/")[-1]
             my_conn.execute(
-                f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{tname}', '1', '{mtime}')")
+                    f"INSERT INTO `meta data` (`filename`, `isFile`, `mtime`) VALUES ('{tname}', '1', '{mtime}')")
             result = pd.read_sql("SELECT LAST_INSERT_ID()", my_conn)
             c_id = result["LAST_INSERT_ID()"][0]
             my_conn.execute(
-                f"INSERT INTO `directory` (`parent_id`, `children_id`) VALUES ('{p_id}', '{c_id}')")
+                    f"INSERT INTO `directory` (`parent_id`, `children_id`) VALUES ('{p_id}', '{c_id}')")
             dataframe = pd.read_csv(filename)
             __create_file(c_id, dataframe, k)
         else:
+            print("The file has existed")
             return False
         return True
     except:
