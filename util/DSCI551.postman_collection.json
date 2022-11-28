@@ -79,15 +79,15 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://dsci551-367122.uw.r.appspot.com/api/v1/cat?file_path=%2Fcrime%2farrest.csv&db=firebase",
-					"protocol": "https",
+					"raw": "http://172.26.220.165:5000/api/v1/cat?file_path=%2Fcrime%2fmarijuana.csv&db=mysql",
+					"protocol": "http",
 					"host": [
-						"dsci551-367122",
-						"uw",
-						"r",
-						"appspot",
-						"com"
+						"172",
+						"26",
+						"220",
+						"165"
 					],
+					"port": "5000",
 					"path": [
 						"api",
 						"v1",
@@ -96,11 +96,11 @@
 					"query": [
 						{
 							"key": "file_path",
-							"value": "%2Fcrime%2farrest.csv"
+							"value": "%2Fcrime%2fmarijuana.csv"
 						},
 						{
 							"key": "db",
-							"value": "firebase"
+							"value": "mysql"
 						}
 					]
 				}
@@ -181,7 +181,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://192.168.230.79:5000/api/v1/readPartition?file_path=%2Fuser%2Fjohn%2Ftestcsv.csv&db=firebase&partition_num=1",
+					"raw": "http://192.168.230.79:5000/api/v1/readPartition?file_path=%2Fcrime%2Fmarijuana.csv&db=mysql&partition_num=1",
 					"protocol": "http",
 					"host": [
 						"192",
@@ -198,11 +198,11 @@
 					"query": [
 						{
 							"key": "file_path",
-							"value": "%2Fuser%2Fjohn%2Ftestcsv.csv"
+							"value": "%2Fcrime%2Fmarijuana.csv"
 						},
 						{
 							"key": "db",
-							"value": "firebase"
+							"value": "mysql"
 						},
 						{
 							"key": "partition_num",
@@ -220,7 +220,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"table\": \"/crime/collision.csv\",\r\n    \"database\": \"firebase\",\r\n    \"argsEq\": {\r\n        \"Gender\": \"F\",\r\n        \"Date\": \"07/03/2019\"\r\n    },\r\n    \"argsLte\": {\r\n    },\r\n    \"argsGte\": {\r\n    },\r\n    \"cal\": \"COUNT\"\r\n}",
+					"raw": "{\r\n    \"table\": \"/crime/marijuana.csv\",\r\n    \"database\": \"mysql\",\r\n    \"argsEq\": {\r\n    },\r\n    \"argsLte\": {\r\n        \"Date\": \"01/26/2015\"\r\n    },\r\n    \"argsGte\": {\r\n        \"Date\": \"12/02/2015\"\r\n    },\r\n    \"cal\": \"COUNT\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -228,19 +228,61 @@
 					}
 				},
 				"url": {
-					"raw": "http://172.26.220.165:5000/api/v1/query",
+					"raw": "https://dsci551-367122.uw.r.appspot.com/api/v1/query",
+					"protocol": "https",
+					"host": [
+						"dsci551-367122",
+						"uw",
+						"r",
+						"appspot",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "put",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://172.26.218.86:5000/api/v1/put?db=mongo&file_src=.%2Ftest.txt&directory_path=%2F&partition_count=1",
 					"protocol": "http",
 					"host": [
 						"172",
 						"26",
-						"220",
-						"165"
+						"218",
+						"86"
 					],
 					"port": "5000",
 					"path": [
 						"api",
 						"v1",
-						"query"
+						"put"
+					],
+					"query": [
+						{
+							"key": "db",
+							"value": "mongo"
+						},
+						{
+							"key": "file_src",
+							"value": ".%2Ftest.txt"
+						},
+						{
+							"key": "directory_path",
+							"value": "%2F"
+						},
+						{
+							"key": "partition_count",
+							"value": "1"
+						}
 					]
 				}
 			},
