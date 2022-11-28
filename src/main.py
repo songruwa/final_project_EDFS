@@ -229,7 +229,7 @@ def query():
 	endTime = time.time()
 	totalTime = endTime - startTime
 
-	if cal is None:
+	if cal is None and database != 'spark':
 		objRes = []
 		for tuple in res[startAt : min(len(res), startAt + 1000)]:
 			obj = {}
