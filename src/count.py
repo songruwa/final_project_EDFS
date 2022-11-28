@@ -53,9 +53,15 @@ def map_fun(header,row,argsEq, argsGte, argsLte, cal):
             continue
 
         index = header.index(attribute)
-        if index >= len(row) or getNumOrDate(row[index]) > getNumOrDate(lteValue):
+        if index >= len(row):
             isMatch = False
             break
+        target = getNumOrDate(lteValue)
+        actual =  getNumOrDate(row[index])
+        if type(target) != type(actual) or actual > target:
+            isMatch = False
+            break
+
     if not isMatch:
         return map_return(isMatch,cal,header,row)
 
@@ -65,7 +71,12 @@ def map_fun(header,row,argsEq, argsGte, argsLte, cal):
             continue
 
         index = header.index(attribute)
-        if index >= len(row) or getNumOrDate(row[index]) < getNumOrDate(gteValue):
+        if index >= len(row):
+            isMatch = False
+            break
+        target = getNumOrDate(gteValue)
+        actual =  getNumOrDate(row[index])
+        if type(target) != type(actual) or actual < target:
             isMatch = False
             break
 
@@ -102,7 +113,8 @@ def map_return(match,cal,header,row):
 
 if __name__ == '__main__':
 
-    res,totaltime=analyse('arrest.csv',{ "Gender": "M",  "Arrest Type Code": "I"},{ "Date": "11/15/2021" },{ "Date": "11/17/2021" })
+    #res,totaltime=analyse('crime.csv',{ "Gender": "M",  "Crime Category": "Property Crime"},{ "Date": "07/08/2022" },{ "Date": "11/30/2022" },"COUNT")
+    res,totaltime=analyse('LAPD_call.csv',{},{ "Date": "07/08/2022" },{ "Date": "11/30/2022" },"COUNT")
     #request body:{"table": "/crime/arrest.csv", "database": "mongo", "argsEq": { "Gender": "M",  "Arrest Type Code": "I"}, "argsLte": { "Arrest Date": "01/05/2022" }, "argsGte": { "Arrest Date": "01/01/2022" },"cal": "COUNT"}
     print(res)
     # [{'Date': '11/16/2021', 'Location': 'N Hollywood', 'Gender': 'M', 'Arrest Type Code': 'I'}, {'Date': '11/17/2021', 'Location': 'Devonshire', 'Gender': 'M', 'Arrest Type Code': 'I'},...]
