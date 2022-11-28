@@ -88,9 +88,16 @@ def mapPartition(p, header, argsEq, argsGte, argsLte, cal):
                 continue
 
             index = header.index(attribute)
-            if index >= len(tuple) or getNumOrDate(tuple[index]) > getNumOrDate(lteValue):
+            if index >= len(tuple):
                 isMatch = False
                 break
+
+            target = getNumOrDate(lteValue)
+            actual =  getNumOrDate(tuple[index])
+            if type(target) != type(actual) or actual > target:
+                isMatch = False
+                break
+
         if not isMatch:
             continue
 
@@ -100,7 +107,13 @@ def mapPartition(p, header, argsEq, argsGte, argsLte, cal):
                 continue
 
             index = header.index(attribute)
-            if index >= len(tuple) or getNumOrDate(tuple[index]) < getNumOrDate(gteValue):
+            if index >= len(tuple):
+                isMatch = False
+                break
+
+            target = getNumOrDate(gteValue)
+            actual =  getNumOrDate(tuple[index])
+            if type(target) != type(actual) or actual < target:
                 isMatch = False
                 break
 

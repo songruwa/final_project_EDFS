@@ -85,6 +85,7 @@ def cat():
 	args = request.args
 	file_path = unquote_plus(args.get('file_path'))
 	db = args.get('db')
+	startAt = args.get('startAt', 0)
 	
 	res = []
 	try:
@@ -97,6 +98,8 @@ def cat():
 	except:
 		return jsonify({"res": "failed"}), 500
 
+
+	res = res[startAt : startAt + 1000]
 	return jsonify({'content': res})
 
 
@@ -128,11 +131,27 @@ def rm():
 	return jsonify({"res": "failed"}), 400
 
 
-# TODO: put is much more complicated. figure out how to implement
-@app.route('/api/v1/put', methods = ['PUT'])
+@app.route('/api/v1/put', methods = ['POST'])
 def put():
 	args = request.args
-	return "hello"
+	file_src = unquote_plus(args.get('file_src'))
+	directory_path = unquote_plus(args.get('directory_path'))
+	partition_count = int(args.get('partition_count'))
+	db = args.get('db')
+
+	try:
+		if db == 'mongo':
+			res = mongoClient.put(file_src, directory_path, partition_count)
+		elif db == 'mysql':
+			res = SqlFS.put(file_src, directory_path, partition_count)
+		elif db == 'firebase':
+			res = FbFS.put(file_src, directory_path, partition_count)
+	except:
+		return jsonify({"res": "failed"}), 500
+	
+	if not res:
+		return jsonify({"res": "failed"}), 400
+	return jsonify({"res": "success"})
 
 
 # @param: file_path - the full directory for the file
@@ -168,6 +187,7 @@ def readPartition():
 	file_path = unquote_plus(args.get('file_path'))
 	partition_num = int(args.get('partition_num'))
 	db = args.get('db')
+	startAt = args.get('startAt', 0)
 
 	res = []
 	try:
@@ -179,6 +199,8 @@ def readPartition():
 			res = FbFS.readPartition(file_path, partition_num)
 	except:
 		return jsonify({"res": "failed"}), 500
+
+	res = res[startAt : startAt + 1000]
 
 	return jsonify({'content': res})
 
@@ -220,6 +242,7 @@ def query():
 		'res': res,
 		'computationTimeSecond': totalTime 
 	})
+
 
 # driver function
 if __name__ == '__main__':
